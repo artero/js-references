@@ -8,7 +8,7 @@ const BasicEditor = () => {
   return (
     <Slate editor={editor} initialValue={initialValue}>
       <Editable
-        className="p-2 border border-gray-300 text-gray-900 rounded-md"
+        className="p-2 border border-gray-300 text-gray-900 rounded-md border-dotted"
         placeholder="Enter some plain text..."
       />
     </Slate>
