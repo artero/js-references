@@ -1,6 +1,6 @@
 import BasicEditor from "~/components/BasicEditor";
 import AddChildInSelection from "~/components/AddChildInSelection";
-import SerializeEditor from "~/components/SerializeEditor";
+import ViewerComponent from "~/components/ViewerComponent";
 
 export default function Index() {
   return (
@@ -15,7 +15,11 @@ export default function Index() {
         <AddChildInSelection />
         <hr className="my-8" />
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Serialize</h2>
-        {/* <SerializeEditor /> */}
+        <ViewerComponent
+          content={
+            "hello\n\n\n <orchestra_dataset_id>1</orchestra_dataset_id> foobar\n <orchestra_dataset_id>1</orchestra_dataset_id> foobar"
+          }
+        />
       </div>
     </div>
   );

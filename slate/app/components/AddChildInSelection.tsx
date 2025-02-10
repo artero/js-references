@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import escapeHtml from "escape-html";
 import { createEditor, Transforms, Text, Editor } from "slate";
 import {
@@ -13,6 +13,7 @@ import { withHistory } from "slate-history";
 import { LibraryBig } from "lucide-react";
 import { data, Form } from "@remix-run/react";
 import { jsx } from "slate-hyperscript";
+import ViewerComponent from "./ViewerComponent";
 
 export type MentionElement = {
   type: "mention";
@@ -67,7 +68,7 @@ const AddChildInSelection = () => {
       return string;
     }
 
-    const children = node.children.map((n) => serialize(n)).join("");
+    const children = node.children.map((n) => serialize(n)).join("\n");
 
     switch (node.type) {
       case "tool-tag":
@@ -156,7 +157,7 @@ const AddChildInSelection = () => {
       <h3 className="text-gray-700 text-sm font-semibold">
         Deserialized no editable:
       </h3>
-      <ViewerComponent content={value} />
+      <ViewerComponent content={deserializeInput} />
       <hr className="my-4" />
       <button
         className="mb-4 rounded bg-blue-500 px-2 py-1 text-white"
@@ -166,7 +167,7 @@ const AddChildInSelection = () => {
       </button>
       <Slate
         editor={editor}
-        initialValue={value}
+        initialValue={emptyInitialValue}
         onChange={(value) => setValue(value)}
       >
         <Editable
@@ -182,10 +183,10 @@ const AddChildInSelection = () => {
           "
           renderElement={(props) => <Element {...props} />}
           renderLeaf={(props) => <Leaf {...props} />}
-          placeholder="Enter some plain text..."
+          placeholder="Enter some plain textEnter some plain..."
         />
       </Slate>
-
+      asfsdf
       <div className="mt-4">
         <button
           className="mb-4 rounded bg-blue-500 px-2 py-1 text-white"
@@ -193,9 +194,9 @@ const AddChildInSelection = () => {
         >
           Serialize
         </button>
-        <div className="border border-gray-300 p-2 rounded-md text-gray-900">
+        <pre className="border border-gray-300 p-2 rounded-md text-gray-900">
           {content}
-        </div>
+        </pre>
       </div>
     </div>
   );
@@ -240,7 +241,11 @@ const Element = ({ attributes, children, element }) => {
         </span>
       );
     default:
-      return <p {...attributes}>{children}</p>;
+      return (
+        <div {...attributes} style={{ position: "relative" }}>
+          {children}
+        </div>
+      );
   }
 };
 
@@ -267,6 +272,8 @@ const initialValue = [
     ],
   },
 ];
+
+const emptyInitialValue = [{ type: "paragraph", children: [{ text: "" }] }];
 
 const datasets = [
   {
@@ -330,20 +337,5 @@ const datasets = [
       "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque.",
   },
 ];
-
-const ViewerComponent = ({ content }) => {
-  const editor = useMemo(() => withReact(createEditor()), []);
-
-  return (
-    <Slate editor={editor} initialValue={content} onChange={() => {}}>
-      <Editable
-        className="border border-l-4 p-2 text-gray-400 border-r-0 border-y-0"
-        readOnly // Indica que el contenido es de solo lectura
-        renderElement={(props) => <Element {...props} />}
-        renderLeaf={(props) => <Leaf {...props} />}
-      />
-    </Slate>
-  );
-};
 
 export default AddChildInSelection;
