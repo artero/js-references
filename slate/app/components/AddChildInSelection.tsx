@@ -47,6 +47,57 @@ const AddChildInSelection = () => {
     "hello <orchestra_dataset_id>1</orchestra_dataset_id> foobar"
   );
 
+  const Element = ({ attributes, children, element }) => {
+    const selected = useSelected();
+    const focused = useFocused();
+    const style = {
+      boxShadow: selected && focused ? "0 0 0 2px #B4D5FF" : "none",
+    };
+
+    switch (element.type) {
+      case "tool-tag":
+        return (
+          <span
+            {...attributes}
+            className={`
+            px-1 pr-2
+            border
+            rounded-md
+            inline-block
+            baseline
+            my-1
+            ${
+              selected && focused
+                ? "border-blue-500 text-blue-700 shadow-blue-700 bg-blue-50"
+                : "text-purple-800 border-purple-800"
+            }
+            `}
+            contentEditable={false}
+            style={style}
+          >
+            <div
+              contentEditable={false}
+              className="bg-transparent selection:bg-transparent"
+            >
+              <LibraryBig className="inline pt-0.5 pb-1 py-0" />
+              {element.data.name}
+              {children}
+            </div>
+          </span>
+        );
+      default:
+        return (
+          <div {...attributes} style={{ position: "relative" }}>
+            {children}
+          </div>
+        );
+    }
+  };
+
+  const Leaf = ({ attributes, children, leaf }) => {
+    return <span {...attributes}>{children}</span>;
+  };
+
   const addToolTag = useCallback(() => {
     const dataset = datasets[Math.floor(Math.random() * datasets.length)];
     console.log({ data });
@@ -68,11 +119,13 @@ const AddChildInSelection = () => {
       return string;
     }
 
-    const children = node.children.map((n) => serialize(n)).join("\n");
+    const children = node.children.map((n) => serialize(n)).join("");
 
     switch (node.type) {
       case "tool-tag":
         return `<orchestra_dataset_id>${node.data.id}</orchestra_dataset_id>`;
+      case "paragraph":
+        return `${children}\n`;
       default:
         return children;
     }
@@ -200,57 +253,6 @@ const AddChildInSelection = () => {
       </div>
     </div>
   );
-};
-
-const Element = ({ attributes, children, element }) => {
-  const selected = useSelected();
-  const focused = useFocused();
-  const style = {
-    boxShadow: selected && focused ? "0 0 0 2px #B4D5FF" : "none",
-  };
-
-  switch (element.type) {
-    case "tool-tag":
-      return (
-        <span
-          {...attributes}
-          className={`
-          px-1 pr-2
-          border
-          rounded-md
-          inline-block
-          baseline
-          my-1
-          ${
-            selected && focused
-              ? "border-blue-500 text-blue-700 shadow-blue-700 bg-blue-50"
-              : "text-purple-800 border-purple-800"
-          }
-          `}
-          contentEditable={false}
-          style={style}
-        >
-          <div
-            contentEditable={false}
-            className="bg-transparent selection:bg-transparent"
-          >
-            <LibraryBig className="inline pt-0.5 pb-1 py-0" />
-            {element.data.name}
-            {children}
-          </div>
-        </span>
-      );
-    default:
-      return (
-        <div {...attributes} style={{ position: "relative" }}>
-          {children}
-        </div>
-      );
-  }
-};
-
-const Leaf = ({ attributes, children, leaf }) => {
-  return <span {...attributes}>{children}</span>;
 };
 
 const initialValue = [
