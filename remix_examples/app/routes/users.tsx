@@ -1,13 +1,14 @@
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { Outlet, Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { useState, useEffect } from "react";
 
 export const loader = async () => {
-  const users = [
-    { id: 1, name: "User One", email: "userone@example.com" },
-    { id: 2, name: "User Two", email: "usertwo@example.com" },
-    { id: 3, name: "User Three", email: "userthree@example.com" },
-  ];
+  console.log("users.tsx loader");
+  const users = Array.from({ length: 100 }, (_, i) => ({
+    id: i + 1,
+    name: `User ${i + 1}`,
+    email: `user${i + 1}@example.com`,
+  }));
   return json({ users });
 };
 
@@ -56,51 +57,26 @@ export default function Users() {
         <ul>
           {updatedUsers.map((user) => (
             <li key={user.id} className="mb-2">
-              <button
+              <Link
                 className="text-blue-500 hover:underline"
-                onClick={() => handleEditClick(user)}
+                to={`/users/${user.id}`}
               >
                 {user.name}
-              </button>
+              </Link>
+              <fetcher.Form method="post" action={`/users/${user.id}/destroy`}>
+                <button
+                  type="submit"
+                  className="text-red-500 hover:underline ml-4"
+                >
+                  Delete
+                </button>
+              </fetcher.Form>
             </li>
           ))}
         </ul>
       </div>
       <div className="w-2/3">
-        {selectedUser && (
-          <fetcher.Form method="post" className="space-y-4">
-            <input type="hidden" name="id" value={selectedUser.id} />
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                defaultValue={selectedUser.name}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                defaultValue={selectedUser.email}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-              />
-            </div>
-            <button
-              type="submit"
-              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md"
-              disabled={fetcher.state === "submitting"}
-            >
-              {fetcher.state === "submitting" ? "Updating..." : "Update"}
-            </button>
-          </fetcher.Form>
-        )}
+        <Outlet />
       </div>
     </div>
   );
