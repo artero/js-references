@@ -1,46 +1,33 @@
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { json } from "@remix-run/node";
-import { useEffect } from "react";
 import { prisma } from "../../prismaClient";
-
-export const loader = async ({ params }) => {
-  const user = await prisma.user.findUnique({
-    where: { id: parseInt(params.id) },
-  });
-
-  if (!user) {
-    throw new Response("Not Found", { status: 404 });
-  }
-  return json({ user });
-};
+import { useEffect } from "react";
 
 export const action = async ({ request }) => {
   const formData = await request.formData();
-  const id = parseInt(formData.get("id"));
   const name = formData.get("name");
   const email = formData.get("email");
 
-  if (name === "") {
-    console.log(`Error: Name is required`);
-    return json({ success: false, error: "Name is required" }, { status: 400 });
+  if (!name || !email) {
+    return json(
+      { success: false, error: "Name and email are required" },
+      { status: 400 }
+    );
   }
 
-  console.log(`Updating user ${id} with name: ${name}, email: ${email}`);
-  await prisma.user.update({
-    where: { id },
+  const newUser = await prisma.user.create({
     data: { name, email },
   });
-  return json({ success: true });
+
+  return json({ success: true, user: newUser });
 };
 
-export default function EditUser() {
-  const { user } = useLoaderData();
+export default function NewUser() {
   const fetcher = useFetcher();
 
   useEffect(() => {
     if (fetcher.data && fetcher.data.success) {
-      // Aquí puedes manejar la lógica después de la actualización
-      console.log("User updated successfully");
+      console.log("User created successfully");
     }
   }, [fetcher.data]);
 
@@ -49,13 +36,11 @@ export default function EditUser() {
       {fetcher.data && fetcher.data.error && (
         <p className="mt-2 text-sm text-red-600">{fetcher.data.error}</p>
       )}
-      <input type="hidden" name="id" value={user.id} />
       <div>
         <label className="block text-sm font-medium text-gray-700">Name</label>
         <input
           type="text"
           name="name"
-          defaultValue={user.name}
           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
         />
       </div>
@@ -64,16 +49,15 @@ export default function EditUser() {
         <input
           type="email"
           name="email"
-          defaultValue={user.email}
           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
         />
       </div>
       <button
         type="submit"
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md"
+        className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md"
         disabled={fetcher.state === "submitting"}
       >
-        {fetcher.state === "submitting" ? "Updating..." : "Update"}
+        {fetcher.state === "submitting" ? "Creating..." : "Create"}
       </button>
     </fetcher.Form>
   );

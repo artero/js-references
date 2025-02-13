@@ -2,11 +2,17 @@
 
 - 📖 [Remix docs](https://remix.run/docs)
 
+## Setup
+
+```sh
+npx prisma migrate dev --name init
+```
+
 ## Development
 
 Run the dev server:
 
-```shellscript
+```sh
 npm run dev
 ```
 
