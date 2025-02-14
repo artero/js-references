@@ -8,6 +8,7 @@ export const loader = async ({ params }) => {
     where: { id: parseInt(params.id) },
   });
 
+  console.log(`User found: ${JSON.stringify(user)}`);
   if (!user) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -37,12 +38,12 @@ export default function EditUser() {
   const { user } = useLoaderData();
   const fetcher = useFetcher();
 
-  useEffect(() => {
-    if (fetcher.data && fetcher.data.success) {
-      // Aquí puedes manejar la lógica después de la actualización
-      console.log("User updated successfully");
-    }
-  }, [fetcher.data]);
+  // useEffect(() => {
+  //   if (fetcher.data && fetcher.data.success) {
+  //     // Aquí puedes manejar la lógica después de la actualización
+  //     console.log("User updated successfully");
+  //   }
+  // }, [fetcher.data]);
 
   return (
     <fetcher.Form method="post" className="space-y-4">
