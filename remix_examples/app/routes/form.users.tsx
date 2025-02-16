@@ -1,7 +1,12 @@
-import { Outlet, Link, useLoaderData, useFetcher } from "@remix-run/react";
+import {
+  Outlet,
+  Link,
+  useLoaderData,
+  useParams,
+  useFetcher,
+} from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { prisma } from "../../prismaClient";
-import { useState, useEffect } from "react";
 
 export const loader = async () => {
   console.log("users.tsx loader");
@@ -24,8 +29,8 @@ export const action = async ({ request }) => {
 
 export default function Users() {
   const { users } = useLoaderData();
+  const params = useParams();
   const fetcher = useFetcher();
-  // const [updatedUsers, setUpdatedUsers] = useState(users);
 
   return (
     <div className="flex">
@@ -36,11 +41,14 @@ export default function Users() {
             <li key={user.id} className="mb-2">
               <Link
                 className="text-blue-500 hover:underline"
-                to={`/users/${user.id}`}
+                to={`/form/users/${user.id}`}
               >
                 {user.name}
               </Link>
-              <fetcher.Form method="post" action={`/users/${user.id}/destroy`}>
+              <fetcher.Form
+                method="post"
+                action={`/form/users/${user.id}/destroy`}
+              >
                 <button
                   type="submit"
                   className="text-red-500 hover:underline ml-4"
@@ -52,14 +60,14 @@ export default function Users() {
           ))}
         </ul>
         <Link
-          to="/users/new"
+          to="/form/users/new"
           className="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded-md"
         >
           Add New User
         </Link>
       </div>
       <div className="w-2/3">
-        <Outlet />
+        <Outlet key={params.id || "new"} />
       </div>
     </div>
   );

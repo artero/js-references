@@ -1,17 +1,18 @@
-import { useLoaderData, useFetcher } from "@remix-run/react";
-import { json } from "@remix-run/node";
-import { useEffect } from "react";
+import { useLoaderData, Form } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
 import { prisma } from "../../prismaClient";
 
 export const loader = async ({ params }) => {
+  console.log("form.users.$id.tsx loader");
   const user = await prisma.user.findUnique({
     where: { id: parseInt(params.id) },
   });
 
-  console.log(`User found: ${JSON.stringify(user)}`);
+  console.log(`User found loader: ${JSON.stringify(user)}`);
   if (!user) {
     throw new Response("Not Found", { status: 404 });
   }
+
   return json({ user });
 };
 
@@ -31,25 +32,14 @@ export const action = async ({ request }) => {
     where: { id },
     data: { name, email },
   });
-  return json({ success: true });
+  return redirect(`/form/users/${id}`);
 };
 
 export default function EditUser() {
   const { user } = useLoaderData();
-  const fetcher = useFetcher();
-
-  // useEffect(() => {
-  //   if (fetcher.data && fetcher.data.success) {
-  //     // Aquí puedes manejar la lógica después de la actualización
-  //     console.log("User updated successfully");
-  //   }
-  // }, [fetcher.data]);
 
   return (
-    <fetcher.Form method="post" className="space-y-4">
-      {fetcher.data && fetcher.data.error && (
-        <p className="mt-2 text-sm text-red-600">{fetcher.data.error}</p>
-      )}
+    <Form method="post" className="space-y-4" action={`/form/users/${user.id}`}>
       <input type="hidden" name="id" value={user.id} />
       <div>
         <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -72,10 +62,9 @@ export default function EditUser() {
       <button
         type="submit"
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md"
-        disabled={fetcher.state === "submitting"}
       >
-        {fetcher.state === "submitting" ? "Updating..." : "Update"}
+        Update
       </button>
-    </fetcher.Form>
+    </Form>
   );
 }
