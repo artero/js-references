@@ -12,8 +12,14 @@ function App() {
   const initialBoard = Array(9).fill(null);
   const initialTurn = TURNS.X;
 
-  const [board, setBoard] = useState(initialBoard);
-  const [turn, setTurn] = useState(initialTurn);
+  const [board, setBoard] = useState(() => {
+    const savedBoard = window.localStorage.getItem("board");
+    return savedBoard ? JSON.parse(savedBoard) : initialBoard;
+  });
+  const [turn, setTurn] = useState(() => {
+    const savedTurn = window.localStorage.getItem("turn");
+    return savedTurn ? savedTurn : initialTurn;
+  });
   const [winner, setWinner] = useState(null);
 
   const updateBoard = (index) => {
@@ -27,6 +33,10 @@ function App() {
 
     const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X;
     const newWinner = checkWinner(newBoard);
+
+    // Save the current board state to localStorage
+    window.localStorage.setItem("board", JSON.stringify(newBoard));
+    window.localStorage.setItem("turn", newTurn);
 
     if (newWinner) {
       confetti(); // Celebrate the win
@@ -44,6 +54,10 @@ function App() {
     setBoard(initialBoard);
     setTurn(initialTurn);
     setWinner(null);
+
+    window.localStorage.removeItem("board");
+    window.localStorage.removeItem("turn");
+    confetti.reset(); // Reset confetti
   };
 
   return (
